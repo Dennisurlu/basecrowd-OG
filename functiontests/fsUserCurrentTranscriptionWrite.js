@@ -1,0 +1,1 @@
+fsUserCurrentTranscriptionWrite({before:{transcribingref:'projects/doedsattester-test/collections/Aarhus_kasse6_omegn/documents/8011330211-00044/'}, after:{transcribingref:'projects/doedsattester-test/collections/Aarhus_kasse6_omegn/documents/8011330211-001717/'}}, {params:{userid:"bCG8rH9YcEXO4AQeklfTRokw2512"}  });

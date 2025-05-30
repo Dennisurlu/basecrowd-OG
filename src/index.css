@@ -1,0 +1,52 @@
+html {
+	height:100%;
+}
+body {
+  color: white;
+  /*background-color: #3139FF;*/
+  margin:0;
+  height:100%;
+}
+
+#root {
+  height:100%;
+}
+
+code {
+  font-family: monospace;
+  display: block;
+
+}
+
+* {
+  font-family: 'Open Sans', sans-serif;
+
+}
+
+*:focus {
+	outline:none;
+}
+
+a {
+  color: #2acc79;
+}
+
+img {
+  pointer-events: none;
+}
+
+input,
+input:focus {
+  outline: none;
+  border-style: none;
+}
+
+
+.heading {
+  font-weight: 700;
+  color: white;
+}
+.subheading {
+  font-weight: 300;
+  color: white;
+}

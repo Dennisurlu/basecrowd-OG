@@ -1,0 +1,842 @@
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+//const gcs = require('@google-cloud/storage')();
+//const path = require('path');
+//const os = require('os');
+//const fs = require('fs');
+var path = require('path');
+
+/*
+var serviceAccount = require("C:/Users/krist/redia/node/spanish-flu-poc-react/functions/serviceAccountKey.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://den-spanske-syge.firebaseio.com'
+});
+*/
+
+const cors = require('cors')({
+    origin: true,
+});
+
+let defaultAppConfig = {
+    credential: admin.credential.cert(
+      {
+        "type": "service_account",
+        "project_id": "den-spanske-syge",
+        "private_key_id": "c4e05829cc696804ed82aeb0daf4a82a131691af",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCwIBgKd8VtpStV\nf5p67Qv+qYt/90pbeRAVkftBUB1evlWoiph4dhrEOkorytOUgnBgIEJEWvmLy0sv\nly6TwRYgUWgzm2gD+MhPi/TbS4xC0anFzzrKxlEmCHzhW/hJWHoV8XF9w9XW+vSU\nj8TUIzf0X+SzyShYPsIOru5XwEDJlXvLhC4LpXaDVdHNa3bF00i1Z3f8ncULPYca\ntPTwwcXqBUr0paIO9hAf3DnbjR3yhSwnBaXYizAVpq0/ys9S8VpEEcmQtpTOzzeO\nGvYNRvlLN8IaCUWeac3dry/zpELW0tmsAUEqskUYWS9HV+EUYZUb6Uq2xlj6iUd8\nm4MRd5ThAgMBAAECggEABUTIg1Om58tHmxSooeHCeJlIz4itxEPAW+zUh9UmM8Xc\n2SBgREZAMbuOqXW1U519UBrW8KWKDokD1EYhAhGGIGxfAiA1gdzo3RxSNFczuHH+\nMqkq2JMLLWiWl8VBDaykZlClNP5tQLOcKm+Mk04EZ/6QYGJ1nwItmvPXtG9PYNhX\nllZRWBbCs4ALCtz2CyiPdOsd/NlqRuLv1IHmSjMqN5Yx48tktsy/jNlt+7oSbmtV\n1zG0qlmfWl2qYcUXk3BHBYFA1SqtzVlykSXwb4RCMXOFylkW/XbySABiGjWdvIVS\ntm/4iUnF/gsI9NrH9nDWi1vrUWisAWvlvysyXcnwGQKBgQD2KW8WfNZ7mbmFUiXz\n804QkcszEUqDCZ/uS6djNdkUDESnI7Fot/IU6u0/n7orpdQAbRzBTBG7DaTJRxT6\ny6Mr0bVBPJu6W5OFLaDg3r7xy1y0Pge+zyqNPlUmkV1iM3+EcLSzaJyN3zaGDcHW\n7GBDJLw5w1FqfS7ufaJ9C4c3/QKBgQC3Khe+xr93+R4WsfvPt7z2Ilw7hZ3uuQ0V\nQf9ti/jET27V1E/jp6coxB2uaYT4X2U0iVQNFhEp0b/ZusEDy0p3E7icpN3PzeM9\nj77jC5N+KxTvMLO5ApKpBvHSM8MhYyNhRrNjWfkVEW+SdA3vW85ECHuFYnM+yJQ8\nyER+WoOrtQKBgBJ+snYCEyteNW4q6ecWVLsx+Q5xMiP+SSHiVUVC+nhjI5VbPS0d\nBPdFX2X0XkyBPRh7Gjn7uSlQsRzeVlkxi6TzMKciIqEx2DedYgUDN117Zg+0yWgw\nsIXENSmcqmOCcwZEYY9JQNn392TDC9lWETV6QRol7qwNk8Ufc2Hpx9MRAoGASV9e\nRbj+CERN7k98DPiQhJS9F8btvix49jQK60ov7AvZ3WSAYDTPvH/bV/vDHW+xbfs5\nJUjatULltIWgPjHYcZz/zhgpFs5mIkoL8I25lsgRScPbqthCAd3bTxYXK6+4A4a7\n46euJOdoJ2XAE0tWdGBlgsguXE8jOroK3gbKSiUCgYBg7AV6Jg0eDmZ/MhrjDAek\nJN5PNYwioGfJhc/LfTF3eNBPBUHP/Q78cth3Y/HLGq33cQb/S14iXbgBNgQH7b+c\nuKY60//QCIxLe1MdYxkjMv+SvFp5MZyA5NwXEmagQoLsiUkB/bA7KNPN7cW9GLcp\nOeRt+fJZU3Uw67lEUhvmxg==\n-----END PRIVATE KEY-----\n",
+        "client_email": "den-spanske-syge@appspot.gserviceaccount.com",
+        "client_id": "110762062408665996876",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://accounts.google.com/o/oauth2/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/den-spanske-syge%40appspot.gserviceaccount.com"
+      }
+),
+    databaseURL: 'https://projectxxx.firebaseio.com/'
+}
+
+//admin.initializeApp(functions.config().firebase);
+admin.initializeApp(defaultAppConfig);
+
+exports.testUserComplete = functions.https.onRequest((request, response) => {
+  console.log("testUserComplete 09:45");
+    cors(request, response, () => {
+      response.status(200)
+        .send('testUserComplete');
+    });
+});
+
+//const projectId = 'iBHrxEGsnJN6sWV3FjYu';
+const projectId = 'sdu-doedsattester';
+
+
+/* Hvis  doc.userComplete er ude af sync med be oprettede brugere
+*/
+exports.applyUserCompleteToExistingDocuments = functions.https.onRequest((request, response) => {
+  console.log("applyUserCompleteToExistingDocuments");
+  const resp = response;
+  const listUserPromise = admin.auth().listUsers();
+  listUserPromise.then((listUsersResult) => {
+      let userIds = [];
+      listUsersResult.users.forEach((userRecord) => {
+        console.log("user", userRecord);
+        userIds.push(userRecord.uid);
+      });
+      if (listUsersResult.pageToken) {
+        // List next batch of users.
+        //console.error("STOPPING AT 1000 users ", listUsersResult.pageToken);
+      }
+      return userIds;
+    }).then((userIds) => {
+      applyUserCompleteToDocuments(userIds, projectId);
+      resp.send("applyUserCompleteToExistingDocuments default response!");
+      return true;
+    }).catch((error) => {
+      resp.send("listAllUsers error!");
+      console.error("Error applyUserCompleteToExistingDocuments:", error);
+      return false;
+    });
+})
+
+/*
+NÅR EN BRUGER OPRETTES SÆT userComplete FOR DENNE BRUGER PÅ EKSISTERENDE DOKUMENTER
+*/
+exports.userCreated = functions.auth.user().onCreate((event) => {
+  const user = event.data; // The Firebase user.
+  console.log(user.uid);
+  applyUserCompleteToDocuments([user.uid], projectId)
+  return true;
+});
+
+/*
+SÆT userComplete PÅ ALLE DOKUMENTER I ET PROJEKT
+UDEN AT OVERSKRIVE userComplete[uid] hvis den er true
+*/
+applyUserCompleteToDocuments = (userIds, projectid ) => {
+  console.log("applyUserCompleteToDocuments", userIds, projectid);
+  //console.log("her skal vi loope igennem users og tilføje dem til documents.usersComplete[uid]:false");
+  const documentsRef = admin.firestore().collection('projects').doc(projectId).collection('documents');
+  const pr1 = loadDocumentObjects(documentsRef);
+
+  pr1.then(documentObjects => {
+    let promiseList = [];
+    const fieldsComplete = {};
+    for (var i = 0; i < documentObjects.length; i++) {
+      const docData = documentObjects[i].data();
+      const userComplete = docData.userComplete ? docData.userComplete : {};
+
+      // if doc.userComplete[uid] === undefined -> set it to false
+      for (var j = 0; j < userIds.length; j++) {
+        if (!userComplete.hasOwnProperty(userIds[j])) {
+          userComplete[userIds[j]] = false;
+        }
+      }
+
+      const fieldPromise = saveCompletedFields(documentObjects[i].ref, fieldsComplete, userComplete);
+      promiseList.push(fieldPromise);
+    }
+
+    return Promise.all(promiseList).then(() => {
+      console.log("ALL FIELDS INITTED WITH USERS");
+      //return Promise.all([templates])
+      return true;
+    });
+  }).catch((error) => {
+    console.error("Error applyUserCompleteToDocuments", error);
+    return false;
+  });
+};
+
+// LOADER ALLE DOKUMENTER I projectId.documents
+loadDocumentObjects = (documentsRef) => {
+  const documentObjects = [];
+  return documentsRef.get().then(querySnapshot => {
+      querySnapshot.forEach(document => {
+        documentObjects.push(document);
+      });
+      return documentObjects;
+  })
+};
+
+
+
+/*
+NÅR ET BILLEDE UPLOADES
+TILFØJ TIL /images
+TILFØJ TIL /projectId.documents
+*/
+
+/*
+exports.imageUploaded = functions.storage.object().onChange((event) => {
+  //  const bucket = gcs.bucket("doedsattester/kasse 282 Aarhus amt 1918/1000x1500/move_rotate/");
+  console.log("imageUploaded version 06-03-18 14:13");
+  console.log(event);
+  const object = event.data;
+  const fileBucket = object.bucket; // The Storage bucket that contains the file.
+  const filePath = object.name; // File path in the bucket.
+  const contentType = object.contentType; // File content type.
+  const resourceState = object.resourceState; // The resourceState is 'exists' or 'not_exists' (for file/folder deletions).
+  const metageneration = object.metageneration; // Number of times metadata has been generated. New objects have a value of 1.
+
+  console.log('object:' + object);
+  console.log('fileBucket: ' + fileBucket);
+  console.log('filePath: ' + filePath);
+  console.log('contentType: ' + contentType);
+  console.log('metageneration: ' + metageneration);
+
+  if (!object.contentType.startsWith('image/')) {
+     console.log('This is not an image.');
+     return null;
+   }
+
+   // Exit if this is a move or deletion event.
+  if (object.resourceState === 'not_exists') {
+    console.log('This is a deletion event.');
+    return null;
+  }
+
+  const extName = path.extname(filePath);
+  console.log("extName", extName);
+  const fileName = path.basename(filePath, extName);
+
+  console.log("##############");
+  console.log("filePath", filePath);
+  console.log("fileName", fileName);
+
+  const template = 'doedsattester-B-01';
+  const imageData = {
+    project:"doedsattester",
+    fileReference:filePath,
+    name:fileName,
+    template:template
+  }
+
+  console.log("imageData");
+  console.log(imageData);
+
+  admin.firestore().collection('images').doc(fileName)
+    .set(imageData)
+   .then(docRef => {
+      console.log("imageData added to firestore.images");
+       return true;
+     }).catch(reason => {
+       console.log("Error adding field", reason);
+       return false;
+     })
+
+   // try to add it to documents
+   const documentData = {
+     complete:false,
+     fileReference:filePath,
+     name:fileName,
+     template:template
+   }
+
+
+
+  admin.firestore().collection('projects').doc(projectId).collection('documents').doc(fileName)
+  .set(documentData)
+  .then(docRef => {
+      console.log("documentData added to projects[document].documents");
+      return true;
+    }).catch(reason => {
+      console.log("Error adding document", reason);
+      return false;
+    })
+
+  console.log("imageUploaded triggered");
+  return true;
+});
+*/
+
+/*
+LOAD TEMPLATES og deres fields
+LOAD ALLE DOCUMENTS
+ved match på templateId init document.fields properties
+*/
+
+// pre 2018-04-16
+exports.initDocumentDefaults = functions.https.onRequest((request, response) => {
+  // loop igennem alle dokumenter
+  // opret fields+status til alle dokumenter
+  const documentsRef = admin.firestore().collection('projects').doc(projectId).collection('documents');
+  //const templatesRef = admin.firestore().collection('templates');
+
+  //let templates = {};
+  let documents = {};
+  console.log("************************");
+
+  const pr1 = loadDocumentObjects(documentsRef);
+
+  pr1.then(documents => {
+    const fieldsPromiseList = [];
+    console.log("LOADED", documents.length);
+    for (var i = 0; i < documents.length; i++) {
+      const doc = documents[i].data();
+      const key = documents[i].id;
+      const regions = doc.regions;
+      //console.log(doc);
+      // new / update props
+      let fieldsComplete = doc.fieldsComplete ? doc.fieldsComplete : {};
+      let userComplete = doc.userComplete ? doc.userComplete : {};
+      for (var fieldId in regions) {
+        if (!fieldsComplete.hasOwnProperty(fieldId)) {
+            fieldsComplete[fieldId] = false;
+        }
+      }
+      const docRef = documentsRef.doc(key);
+      const fieldPromise = saveCompletedFields(docRef, fieldsComplete, userComplete);
+      fieldsPromiseList.push(fieldPromise);
+    }
+
+    return Promise.all(fieldsPromiseList).then(() => {
+      console.log(" fieldsPromiseList fieldsPromiseList fieldsPromiseList fieldsPromiseList ");
+      return Promise.all([])
+    });
+
+    /*
+    for (var key in documents) {
+      const doc = documents[key];
+      const regions = documents.regions;
+      // new props
+      let fieldsComplete = doc.fieldsComplete ? doc.fieldsComplete : {};
+      let userComplete = doc.userComplete ? doc.userComplete : {};
+      for (var fieldId in regions) {
+        if (!fieldsComplete.hasOwnProperty(fieldId)) {
+            fieldsComplete[fieldId] = false;
+        }
+      }
+      */
+
+      //console.log(key);
+
+  }).catch((error) => {
+    console.error("Error", error);
+    return false;
+  });
+  //const pr2 = loadTemplates(templatesRef);
+
+
+  /*
+  const allPr = Promise.all([pr1, pr2]);
+  allPr.then(results => {
+    documents = results[0];
+    templates = results[1];
+    return templates
+  }).then(templates =>{
+    var promiseList = [];
+    for (var key in templates) {
+      const pr = loadTemplateFields(templatesRef, key)
+      .then(fields => {
+          templates[key].fields = fields;
+          return fields;
+      })
+      promiseList.push(pr);
+    }
+    return Promise.all(promiseList).then(() => {
+      return Promise.all([templates])
+    });
+  }).then(result => {
+    const fieldsPromiseList = [];
+    for (var key in documents) {
+      const doc = documents[key];
+      const templateId = doc.template;
+      const template = templates[templateId];
+      const fields = template.fields;
+
+      let fieldsComplete = doc.fieldsComplete ? doc.fieldsComplete : {};
+      let userComplete = doc.userComplete ? doc.userComplete : {};
+
+      for (var fieldId in fields) {
+        if (!fieldsComplete.hasOwnProperty(fieldId)) {
+            fieldsComplete[fieldId] = false;
+        }
+      }
+
+      const docRef = documentsRef.doc(key);
+      const fieldPromise = saveCompletedFields(docRef, fieldsComplete, userComplete);
+      fieldsPromiseList.push(fieldPromise);
+    }
+
+    return Promise.all(fieldsPromiseList).then(() => {
+      console.log(" fieldsPromiseList fieldsPromiseList fieldsPromiseList fieldsPromiseList ");
+      return Promise.all([])
+    });
+
+  }).catch(reason => {
+    console.log("Error", reason);
+    //response.send("initDocumentDefaults error!");
+  })
+  */
+
+  response.send("initDocumentDefaults default response!");
+});
+
+
+/*
+// pre 2018-04-16
+exports.initDocumentDefaults = functions.https.onRequest((request, response) => {
+  // loop igennem alle dokumenter
+  // opret fields+status til alle dokumenter
+  const documentsRef = admin.firestore().collection('projects').doc(projectId).collection('documents');
+  const templatesRef = admin.firestore().collection('templates');
+
+  let templates = {};
+  let documents = {};
+  console.log("************************");
+
+  const pr1 = loadDocuments(documentsRef);
+  const pr2 = loadTemplates(templatesRef);
+
+  const allPr = Promise.all([pr1, pr2]);
+  allPr.then(results => {
+    documents = results[0];
+    templates = results[1];
+    return templates
+  }).then(templates =>{
+    var promiseList = [];
+    for (var key in templates) {
+      const pr = loadTemplateFields(templatesRef, key)
+      .then(fields => {
+          templates[key].fields = fields;
+          return fields;
+      })
+      promiseList.push(pr);
+    }
+    return Promise.all(promiseList).then(() => {
+      return Promise.all([templates])
+    });
+  }).then(result => {
+    const fieldsPromiseList = [];
+    for (var key in documents) {
+      const doc = documents[key];
+      const templateId = doc.template;
+      const template = templates[templateId];
+      const fields = template.fields;
+
+      let fieldsComplete = doc.fieldsComplete ? doc.fieldsComplete : {};
+      let userComplete = doc.userComplete ? doc.userComplete : {};
+
+      for (var fieldId in fields) {
+        if (!fieldsComplete.hasOwnProperty(fieldId)) {
+            fieldsComplete[fieldId] = false;
+        }
+      }
+
+      const docRef = documentsRef.doc(key);
+      const fieldPromise = saveCompletedFields(docRef, fieldsComplete, userComplete);
+      fieldsPromiseList.push(fieldPromise);
+    }
+
+    return Promise.all(fieldsPromiseList).then(() => {
+      console.log(" fieldsPromiseList fieldsPromiseList fieldsPromiseList fieldsPromiseList ");
+      return Promise.all([])
+    });
+
+  }).catch(reason => {
+    console.log("Error", reason);
+    //response.send("initDocumentDefaults error!");
+  })
+
+  response.send("initDocumentDefaults default response!");
+});
+*/
+// LOAD ALLE DOKUMENTER
+// OG RETURNER dict[key] = document
+loadDocuments = (documentsRef) => {
+  const documents = {};
+  return documentsRef.get().then(querySnapshot => {
+      querySnapshot.forEach(document => {
+        //console.log("REF", document.ref);
+        var key = document.id;
+        console.log("key", key);
+        documents[key] = document.data()
+      });
+      console.log("loadDocuments.return");
+      return documents;
+  })
+};
+
+// LOAD ALLE TEMPLATES
+// OG RETURNER dict[key] = template
+loadTemplates = (ref => {
+  return ref.get().then(querySnapshot => {
+    let templates = {};
+    querySnapshot.forEach(template => {
+      templates[template.id] = template.data();
+    });
+    return templates;
+  })
+});
+
+// LOAD TEMPLATE.fields
+// OG RETURNER dict[key] = field
+loadTemplateFields = ((templateRef, templateId) => {
+  return templateRef.doc(templateId).collection('fields').get().then(fieldQuerySnapshot => {
+      let fields = {};
+      fieldQuerySnapshot.forEach(field => {
+          fields[field.id] = field.data();
+      });
+      return fields;
+  })
+});
+
+// GEM fieldsComplete og userComplete på et DOCUMENT
+saveCompletedFields = ((docRef, fieldsComplete, userComplete) => {
+  return docRef.set({fieldsComplete:fieldsComplete, userComplete:userComplete}, { merge: true })
+  .then((obj) => {
+      console.log("Document successfully written!");
+      return true;
+  })
+  .catch((error) => {
+      console.error("Error writing document: ", error);
+  });
+});
+
+fsEvaluateDocumentStatus = (event) => {
+  const { projectId, documentId, userId, fieldId } = event.params;
+  console.log('fsEvaluateDocumentStatus', projectId, documentId, userId, fieldId);
+  fsEvaluateFieldTranscriptions(event);
+  // loop igennem alle
+  return true;
+}
+
+// NÅR EN TRANSCRIPTION OPRETTES / OPDATERES KALD fsEvaluateDocumentStatus
+exports.fsUpdateTranscription = functions.firestore
+  //.document('projects/{projectId}/documents/{documentId}/transcriptions/{transcriptionId}')
+  .document('projects/{projectId}/documents/{documentId}/users/{userId}/fields/{fieldId}')
+  .onWrite(fsEvaluateDocumentStatus);
+
+// EVALUÈR EN BRUGER-TRANSCRIPTION
+// RETURNER true hvis feltet er udfyldt, ulæseligt eller tomt
+transcriptionComplete = (transcription) => {
+  console.log("transcriptionComplete", transcription);
+  const complete = Boolean(transcription.unreadable || transcription.empty || transcription.value !== "");
+  return complete;
+}
+
+// NÅR EN BRUGER OPRETTER / OPDATERER EN TRANSCRIPTION
+// LOAD ALLE TRANSCRIPTION for FELTET
+// EVALUER OM FELTET ER complete
+// OPDATER document.fieldstatus
+// LOAD ALLE BRUGERENS TRANSCRIPTIONS FOR DETTE DOCUMENT
+// EVALUER OM BRUGEREN ER FÆRDIG MED ALLE DOKUMENTETS TRANSCRIPTIONS
+// SÆT / OPDATER document.userComplete
+fsEvaluateFieldTranscriptions = (event) => {
+  console.log('fsEvaluateFieldTranscriptions');
+  const { projectId, documentId, userId, fieldId  } = event.params;
+
+  const data = event.data.data();
+  const rootRef = event.data.ref.firestore;
+
+  // ARE FIELDS COMPLETE???
+  // UPDATE THE TRANSCRIPTION WITH COMPLETE STATUS (true/false)
+  const userFieldComplete = transcriptionComplete(data);
+  const transcription = event.data.data();
+  transcription.complete = userFieldComplete;
+  event.data.ref.set(transcription)
+
+  const documentRef = rootRef.collection('projects').doc(projectId)
+                .collection('documents').doc(documentId);
+
+  // LOAD ALLE USERS.TRANSCRIPTIONS MED DETTE fieldId
+  const usersRef = documentRef.collection('users')
+
+  return usersRef.get().then(function(querySnapshot) {
+    const userIds = [];
+    querySnapshot.forEach(function(user) {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(user.id, " => ", user.data());
+        userIds.push(user.id);
+    });
+    return userIds
+  }).then((userIds) => {
+    console.log("USERIDS LOADED", userIds);
+
+    const userFieldPromises = [];
+    for (var i = 0; i < userIds.length; i++) {
+      const ref = usersRef.doc(userIds[i]).collection('fields').doc(fieldId).get();
+      userFieldPromises.push( ref);
+    }
+
+    return Promise.all(userFieldPromises).then((values) => {
+      console.log("ALL USER.FIELDS[fieldsId] LOADED");
+      var transcriptions = [];
+      for (var i = 0; i < values.length; i++) {
+        transcriptions.push(values[i].data())
+      }
+      //return Promise.all([templates])
+      return transcriptions;
+    }).then((transcriptions) => {
+
+      const numKeys = transcriptions.size;
+      const userValues = {};
+      const values = [];
+      const userComplete = {};
+      let unreadable = 0;
+      let empty = 0;
+
+      const fieldsComplete = {};
+      const userTranscriptions = {};
+
+      for (var i = 0; i < transcriptions.length; i++) {
+        const trans = transcriptions[i];
+        if(trans.unreadable) unreadable++;
+        if(trans.empty) empty++;
+        userValues[userId] = data.value;
+        if(data.value !== "") values.push(data.value);
+        userComplete[userId] = transcriptionComplete(data);
+      }
+
+      const numValues = Object.keys(values).length;
+      let maxSimilarity = numValues < 2 ? 0 : getMaxSimilarity(values.slice(0));
+      let complete = (numValues > 1) && ( maxSimilarity > 0.9 || unreadable > 3 || empty > 1 || numValues > 3);
+
+      // save the status in document.fieldstatus
+      var status = {
+        complete:complete,
+        maxSimilarity:maxSimilarity,
+        unreadable:unreadable,
+        empty:empty,
+        userValues:userValues,
+        userComplete:userComplete
+      }
+
+      return status;
+
+
+    }).then((status)=>{
+      const fieldstatusRef = documentRef.collection('fieldstatus').doc(fieldId);
+      return fieldstatusRef.get()
+      .then(doc => {
+          let data;
+          if (doc.exists) { // tilføj til eksisterende
+            console.log("fieldstatus exists data:", doc.data());
+            data = doc.data();
+          } else { // opret ny fieldstatus
+              data = {};
+              console.log("No such fieldstatus! - creating new");
+          }
+          data.complete = status.complete;
+          data.maxsimilarity = status.maxSimilarity;
+          data.unreadable = status.unreadable;
+          data.empty = status.empty;
+          data.values = status.userValues;
+          data.users = status.userComplete;
+
+          return fieldstatusRef.set(data, {merge:false})
+          .then((e) => {
+            console.log("FIELDS STATUS SAVED");
+            return status.complete;
+          }).then((fieldComplete)=> {
+
+            var docStatus = {
+              fieldsComplete:{
+                [fieldId]:fieldComplete
+              }
+            };
+
+            return documentRef.set(docStatus, {merge:true})
+            .then(() => {
+                console.log("document successfully updated!", userId);
+                //setUserDocumentComplete(documentRef, userId);
+                return true;
+            })
+            .catch((error) => {
+                // The document probably doesn't exist.
+                console.error("Error updating document: ", error);
+                return error;
+            });
+
+          }).catch((error) => {
+            return false;
+          })
+        })
+    })
+
+  })
+  // load all transcriptions for this field
+  // GEM STATUS I document.fieldstatus
+
+}
+
+
+getUserTranscription = (key, documentRef, userId) => {
+  var tRef = documentRef.collection('users').doc(userId).collection('fields').doc(key);
+  return tRef.get()
+  .then((doc)=>{
+    return doc
+  }).catch((error) => {
+    return false;
+  });
+};
+
+testUserTranscriptionsComplete = (key, documentRef, userId) => {
+  return getUserTranscription(key, documentRef, userId).then((doc) => {
+    //console.log("C", doc.exists, doc.data().complete);
+      if (doc.exists && doc.data().complete) {
+          return true;
+      } else {
+          return false;
+      }
+    }).catch((error) => {
+      return false;
+    });
+}
+
+setUserDocumentComplete = (documentRef, userId, fieldKeys) => {
+  // load field keys from document
+  //console.log("setUserDocumentComplete", userId);
+  // GET FIELD KEYS FROM DOCUMENT
+  documentRef.get()
+  .then((doc)=>{
+    const {fieldsComplete} = doc.data();
+    const fieldKeys = [];
+    for (var key in fieldsComplete) {
+      fieldKeys.push(key);
+    }
+    return fieldKeys;
+  }).then((fieldKeys)=>{
+
+    // LOOP FIELDKEYS -> LOAD TRANSCRIPTIONS
+    var promises = fieldKeys.map((key) => {
+        return testUserTranscriptionsComplete(key, documentRef, userId);
+    });
+
+    return Promise.all(promises).then((fieldStatus) => {
+      console.log(fieldStatus);
+      complete = true;
+      for (var i = 0; i < fieldStatus.length; i++) {
+        if(!fieldStatus[i]) {
+          complete = false;
+          break;
+        }
+      }
+
+      console.log("COMPLETE", fieldStatus, complete);
+      return true;
+    }).then((complete)=>{
+
+      var docStatus = {
+        userComplete:{
+          [userId]:complete
+        }
+      };
+
+      return documentRef.set(docStatus, {merge:true})
+      .then(() => {
+          console.log("document successfully updated!");
+          return true;
+        }).catch((error) => {
+          console.log("error saving document status");
+          return false;
+        });
+
+    }).catch((error) => {
+      console.log("ERROR", error);
+      return false;
+    });
+
+  }).catch((error) => {
+    console.log("ERROR", error);
+    return false;
+  });
+  /*
+  // load all transcriptions for this user
+  return documentRef.collection('transcriptions')
+      .where('userid', '==', userid).get()
+     .then(querySnapshot => {
+       console.log("all transcriptions for user", userid, "loaded", querySnapshot.size);
+       querySnapshot.forEach(transcription => {
+         const data = transcription.data();
+         //console.log("transcription", transcription.id, " => ", data.complete);
+         userTranscriptions[data.fieldid] = data.complete;
+       })
+       return userTranscriptions;
+     }).then((userTranscriptions) => {
+       //console.log("userTranscriptions userTranscriptions userTranscriptions userTranscriptions");
+       //console.log(userTranscriptions);
+
+        // load all doc.fieldstatus
+        return documentRef.get()
+        .then(doc => {
+            let data;
+            let allComplete = false;
+            if (doc.exists) {
+              const { fieldsComplete } = doc.data();
+              let numComplete = 0;
+              for (var key in fieldsComplete) {
+                if(fieldsComplete[key] || userTranscriptions[key] ) numComplete++;
+              }
+              const fieldCount = Object.keys(fieldsComplete).length;
+              console.log("numComplete", numComplete);
+              console.log("fieldCount", fieldCount);
+              allComplete = numComplete === fieldCount;
+            }
+            return allComplete;
+          }).then((allComplete)=>{
+            console.log(allComplete);
+            var docStatus = {
+              userComplete:{
+                [userid]:allComplete
+              }
+            };
+
+            return documentRef.set(docStatus, {merge:true})
+            .then(() => {
+                console.log("document successfully updated!");
+                return true;
+            })
+            .catch((error) => {
+                // The document probably doesn't exist.
+                console.error("Error updating document: ", error);
+                return error;
+            });
+
+          })
+
+     })
+  */
+};
+
+
+// EVALUERER ET ARRAY AF STRING
+// SAMMENLIGNER STRENGENE PARVIST
+// RETURNERER MAX SIMILARITY
+function getMaxSimilarity(arr){
+  //console.log("getMaxSimilarity", arr);
+  var maxSim = 0;
+
+  while (arr.length > 1) {
+    const val = arr.pop();
+    for(var i = 0;i<arr.length;i++){
+      var sim = similarity(val, arr[i]);
+      maxSim = Math.max(maxSim, sim);
+    }
+  }
+  return maxSim;
+}
+
+// SAMMENLIGNER TO STRENGE
+// RETURNER SIMILARITY (0 til 1)
+function similarity(s1, s2) {
+  var longer = s1;
+  var shorter = s2;
+  if (s1.length < s2.length) {
+    longer = s2;
+    shorter = s1;
+  }
+  var longerLength = longer.length;
+  if (longerLength === 0) {
+    return 1.0;
+  }
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+  }
+
+  editDistance = (s1, s2) => {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+
+    var costs = new Array();
+    for (var i = 0; i <= s1.length; i++) {
+      var lastValue = i;
+      for (var j = 0; j <= s2.length; j++) {
+        if (i === 0)
+          costs[j] = j;
+        else {
+        if (j > 0) {
+          var newValue = costs[j - 1];
+          if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+            newValue = Math.min(Math.min(newValue, lastValue),
+            costs[j]) + 1;
+            costs[j - 1] = lastValue;
+            lastValue = newValue;
+          }
+        }
+      }
+    if (i > 0)
+      costs[s2.length] = lastValue;
+    }
+  return costs[s2.length];
+}

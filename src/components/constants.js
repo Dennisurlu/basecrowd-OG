@@ -1,0 +1,7 @@
+export const STATE_START = "START";
+export const STATE_TRANSCRIBING = "TRANSCRIBING";
+export const STATE_RESUME = "RESUME";
+export const COOKIE_SHOW_GUIDE = "COOKIE_SHOW_GUIDE";
+export const COOKIE_SHOW_START_TEXT = "COOKIE_SHOW_START_TEXT";
+
+export const TIME_STAMP = "2019.02.21 10:15";
